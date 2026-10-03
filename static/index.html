@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>心理科普短片策划与审阅平台</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <h1>心理科普短片策划与审阅平台</h1>
+    <p class="boundary">边界：仅组织一般心理科普内容；不做个体诊断，不生成自动治疗建议。词表未命中不能证明安全。</p>
+  </div>
+  <button id="refreshBtn">刷新</button>
+</header>
+
+<main class="layout">
+  <section class="card span2">
+    <h2>1. Web 编辑：专业内容、适用人群与表述限制</h2>
+    <div class="row"><label>项目</label><select id="projectSelect"></select></div>
+    <form id="projectForm" class="grid">
+      <input name="title" placeholder="短片标题" required />
+      <input name="intended_audience" placeholder="适用人群，如：成年公众/照护者（非急症）" />
+      <textarea name="professional_content" placeholder="专业内容要点（来自固定专业来源）"></textarea>
+      <textarea name="expression_constraints_json" placeholder='表述限制 JSON，如 ["避免绝对化疗效承诺","避免病耻感标签"]'></textarea>
+      <select name="source_version_id"><option value="">固定来源版本…</option></select>
+      <select name="channel_version_id"><option value="">求助渠道版本…</option></select>
+      <button>保存并生成审阅快照</button>
+    </form>
+    <div id="missingBox" class="notice"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. 来源管理</h2>
+    <form id="sourceForm" class="stack">
+      <input name="title" placeholder="来源标题" required />
+      <input name="author" placeholder="作者/机构" />
+      <input name="version" placeholder="版本，如 2026-01" required />
+      <input name="url" placeholder="URL/归档位置" />
+      <input name="publication_date" type="date" />
+      <textarea name="archived_text" placeholder="归档文本（哈希固定来源版本）"></textarea>
+      <button>新增来源版本</button>
+    </form>
+    <div id="sources"></div>
+  </section>
+
+  <section class="card">
+    <h2>3. 审阅人与求助渠道</h2>
+    <form id="reviewerForm" class="inline"><input name="name" placeholder="审阅人" required /><input name="role" placeholder="专业角色" /><button>新增</button></form>
+    <form id="channelForm" class="stack">
+      <input name="name" placeholder="渠道名称，如本地心理援助热线" required />
+      <input name="region" placeholder="地区" required />
+      <input name="contact" placeholder="联系方式" required />
+      <input name="valid_from" type="date" required />
+      <input name="valid_until" type="date" required />
+      <input name="verified_at" type="date" required />
+      <textarea name="verification_basis" placeholder="核验依据：官网公告/回拨工号/邮件等" required></textarea>
+      <button>新增渠道版本</button>
+    </form>
+    <div id="reviewers"></div>
+    <div id="channels"></div>
+  </section>
+
+  <section class="card span2">
+    <h2>4. 角色与段落（字幕、旁白、台词同源）</h2>
+    <form id="characterForm" class="inline"><input name="name" placeholder="角色名" required /><input name="role" placeholder="角色定位" /><button>新增角色</button></form>
+    <form id="segmentForm" class="grid4">
+      <select name="kind"><option>subtitle</option><option>narration</option><option>dialogue</option><option>title</option><option>note</option></select>
+      <select name="character_id"><option value="">无角色（字幕/旁白）</option></select>
+      <input name="text" placeholder="文本" required />
+      <input name="context_note" placeholder="上下文备注：前后段、使用情境" />
+      <button>新增段落</button>
+    </form>
+    <div class="row">
+      <button id="reorderBtn">按列表顺序保存重排（会使旧批准失效）</button>
+      <select id="replaceOldChar"><option>选择要替换的旧角色</option></select>
+      <select id="replaceNewChar"><option>选择新角色</option></select>
+      <button id="replaceCharBtn">替换角色并生成新快照</button>
+    </div>
+    <ol id="segments" class="segments"></ol>
+    <h3>片段修订记录</h3><div id="revisions"></div>
+  </section>
+
+  <section class="card span2">
+    <h2>5. 审阅快照与人工复核</h2>
+    <p class="hint">整片审核只覆盖当前不可变快照；段落级审核也绑定语境。剪辑重排、角色替换、受众变化均不得沿用旧批准。</p>
+    <div class="row">
+      <button id="snapshotBtn">生成/切换审阅快照</button>
+      <span id="snapshotMeta"></span>
+    </div>
+    <div id="snapshotInfo"></div>
+    <form id="reviewForm" class="grid4">
+      <select name="reviewer_id"></select>
+      <select name="scope"><option value="whole">整片批准</option><option value="segment">单段复核</option></select>
+      <select name="segment_id"><option value="">整片（不选段落）</option></select>
+      <select name="status"><option value="approved">批准</option><option value="changes_requested">要求修改</option></select>
+      <input name="internal_comment" placeholder="内部意见：不会进入公开包" />
+      <button>提交审阅</button>
+    </form>
+    <div id="reviews"></div>
+    <form id="vocabForm" class="inline"><input name="name" placeholder="词表名称" /><input name="terms" placeholder="逗号分隔命中词" /><button>建立复核线索词表</button></form>
+    <div id="hits" class="notice"></div>
+  </section>
+
+  <section class="card span2">
+    <h2>6. 工作器：脚本预览与素材清单</h2>
+    <div class="row">
+      <button data-job="script_preview">生成脚本预览</button>
+      <button data-job="material_list">生成素材清单</button>
+      <button id="runWorker">运行一次工作器（也可 CLI: python worker.py --once）</button>
+    </div>
+    <pre id="jobResults"></pre>
+  </section>
+
+  <section class="card span2">
+    <h2>7. 导出、重复发布与可撤销下载</h2>
+    <p class="hint">排队后执行前复验；适用人群变更、渠道过期、角色替换、审阅撤回会阻断或要求重新审阅。重复 request_key 返回既有请求/409。</p>
+    <form id="exportForm" class="inline">
+      <input name="request_key" value="default" />
+      <button>排队导出</button>
+    </form>
+    <form id="publishForm" class="inline">
+      <input name="channel_name" placeholder="发布渠道" value="web" />
+      <input name="request_key" value="default" />
+      <button>请求发布</button>
+    </form>
+    <div id="exports"></div>
+    <div id="publications"></div>
+  </section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>
