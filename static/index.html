@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>心理科普短片策划平台</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>心理科普短片策划平台</h1>
+  <p class="disclaimer" id="disclaimer">本工具不作个体诊断或自动治疗建议 · 词表命中仅为复核线索，未命中不代表内容安全 · 字幕/旁白/角色台词须共用同一审阅快照</p>
+</header>
+<div id="app">
+  <aside>
+    <h2>项目</h2>
+    <ul id="project-list"></ul>
+    <div class="row">
+      <input id="new-project-title" placeholder="新短片标题">
+      <button id="btn-create-project">创建</button>
+    </div>
+    <p class="hint" id="side-hint"></p>
+  </aside>
+  <main>
+    <nav id="tabs">
+      <button data-tab="overview" class="active">概览</button>
+      <button data-tab="segments">片段与来源</button>
+      <button data-tab="review">审阅</button>
+      <button data-tab="glossary">词表</button>
+      <button data-tab="channels">求助渠道</button>
+      <button data-tab="exports">导出与发布</button>
+    </nav>
+    <section id="tab-overview" class="tab"></section>
+    <section id="tab-segments" class="tab hidden"></section>
+    <section id="tab-review" class="tab hidden"></section>
+    <section id="tab-glossary" class="tab hidden"></section>
+    <section id="tab-channels" class="tab hidden"></section>
+    <section id="tab-exports" class="tab hidden"></section>
+  </main>
+</div>
+<div id="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>
